@@ -107,7 +107,8 @@ op3:
 		ESCRIBE presioneTecla 
 		call esperar
 		jmp menu	
-op4:
+op4:    
+        ESCRIBE espacioBlanco
 		ESCRIBE finPrograma		      
         call esperar 
         ret
