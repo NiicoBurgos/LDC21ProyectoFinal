@@ -1,0 +1,440 @@
+;TODO
+;VER CASO ESPECIAL DEL 1
+;TIRA FACTORES 1 Y DIVISORES 1
+
+
+;////////////////////////////////////////////////////////////
+;SECCION DE CONVERSION DE NUMERO A CADENA O VICEVERSA
+;////////////////////////////////////////////////////////////
+
+;Convertir cadena a numero
+CADNUM macro cad,num 
+local multi,finconv 
+        push ax
+        push bx
+		push dx
+		push si
+		mov num,0
+		longitud cadena,long
+		mov si,long 
+	    dec si			
+        sub bx,bx
+        mov bx,1 
+ multi: 
+		sub ax,ax
+		sub dx,dx
+        mov al,cadena[si]    
+		sub al,48		
+        mul bx      
+        add num,ax
+        mov ax,bx
+        mov bx,10
+		mul bx
+        mov bx,ax  
+        cmp si,0
+        je finconv   
+        dec si  
+        jmp multi                  
+finconv:
+		pop si
+		pop dx	
+		pop bx
+        pop ax    
+endm
+
+
+;Convertir un numero a una cadena
+NUMCAD macro num,cad
+local dividir
+        push ax
+        push bx
+        push si 
+		push dx		
+        sub si,si   
+        sub ax,ax
+        sub bx,bx 
+        mov ax,num
+        mov bx,10            
+dividir:
+		sub dx,dx
+		div bx                               
+        add dl,48
+        mov cad[si],dl
+        inc si 
+        cmp ax,0
+        jne dividir 
+		mov cad[si],'$'
+        pop dx
+ 	    pop si
+        pop bx
+        pop ax
+endm
+
+;////////////////////////////////////////////////////////////
+;SECCION ESCRIBIR EN PANTALLA
+;////////////////////////////////////////////////////////////
+
+;Escribir texto por pantalla
+ESCRIBE macro palabra
+		lea dx,palabra
+		call escribir
+endm
+
+
+;////////////////////////////////////////////////////////////
+;SECCION PARA LEER DATOS DEL USUARIO POR TECLADO
+;////////////////////////////////////////////////////////////
+
+;Leer exclusivamente un numero
+LEENUM macro cad,longi   
+local inicio,ingreso,fingreso,errorIngreso
+        push ax
+		push bx
+        mov ah,01 
+inicio:  
+		ESCRIBE ingresoNumero
+		sub si,si            
+ingreso:
+		sub al,al
+		cmp si,longi
+        je fingreso
+        int 21h   
+        cmp al,13
+        je intro   
+        cmp al,48
+        jl errorIngreso 
+        cmp al,57
+        jg errorIngreso            
+        mov cad[si],al
+        inc si
+        jmp ingreso
+intro:
+		cmp si,0
+		je inicio
+		jmp fingreso
+errorIngreso:
+		mov sonido,7
+		ESCRIBE sonido
+		ESCRIBE ingresoErroneo
+		jmp inicio
+fingreso:
+		mov cad[si],'$'
+		ESCRIBE ingresoExitoso		
+        pop bx
+		pop ax
+endm
+
+
+;Verificar opcion del menu
+LEEROPCION macro opc
+local volver,errorOpc,correcto
+		push ax
+volver:			
+		ESCRIBE elegirOpcion	
+;Controlo que la opcion ingresada sea un numero entre 1 y 4
+		mov ah,01
+		int 21h
+		cmp al,49
+		jl errorOpc
+		cmp al,52
+		jg errorOpc
+		jmp correcto
+errorOpc:	
+		mov sonido,7
+		ESCRIBE sonido
+		ESCRIBE errorOpcion
+		jmp volver
+correcto:
+		sub al,48	
+		mov opc,al				
+		pop ax
+endm	
+
+
+;////////////////////////////////////////////////////////////
+;SECCION DEL CODIGO DE LAS OPCIONES
+;////////////////////////////////////////////////////////////
+
+;Realizar la opcion 1
+OPCION1 macro cad,num	
+		mov habilitar3,0
+		LEENUM cad,4
+		LONGITUD cad,long
+		CADNUM cad,num		
+		mov habilitar2,1
+endm
+
+
+;Realizar la opcion 2
+OPCION2 macro num 
+local seguir,fin	
+		push ax
+		push bx
+		push di
+		push dx	
+;verifico que se haya realizado la opcion 1		
+		cmp habilitar2,1
+		je seguir
+		mov sonido,7
+		ESCRIBE sonido
+		ESCRIBE advertirOpc1
+		jmp fin
+seguir:		
+		FACTORES num
+fin:			
+;habilito la opcion3
+		mov habilitar3,1		
+		pop dx
+		pop di
+		pop bx
+		pop ax
+endm
+
+
+;Realizar la opcion 3
+OPCION3 macro num,divisor
+local seguir,fin,continuar,finadvertencia,dividir,numprimo,cero,uno	
+		push ax
+		push bx
+		push dx
+;Verifico que se haya realizado la opcion 1
+		cmp habilitar2,1
+		je seguir
+		mov sonido,7
+		ESCRIBE sonido
+		ESCRIBE advertirOpc1
+		jmp finadvertencia
+seguir:		
+;Verifico que se haya realizado la opcion 2
+		cmp habilitar3,1
+		je avanzar
+		mov sonido,7
+		ESCRIBE sonido
+		ESCRIBE advertirOpc2
+		jmp finadvertencia		
+avanzar:
+		cmp num,0
+		je cero
+		cmp num,1
+		je uno
+		sub dx,dx
+		mov ax,num
+		mov bx,2
+		div bx
+		mov mitad,ax
+		sub dx,dx
+		sub ax,ax
+		mov ax,num
+		mov bx,1
+		mov divisor,bx
+		ESCRIBE divisoresDe
+		NUMCAD num,auxcaddiv
+		INVERSA auxcaddiv
+		ESCRIBE auxcaddiv
+		ESCRIBE excluirPrimos
+;se muestra el 1 que es divisor universal de todos los numeros		
+		NUMCAD divisor,auxcaddiv
+		INVERSA auxcaddiv
+		ESCRIBE auxcaddiv
+;como ya se evaluó si era primo en la opcion 2 comparo la variable
+		cmp primo,1
+		je numprimo		
+
+dividir:sub ax,ax
+		sub dx,dx
+		mov ax,num		
+		div bx                               
+		cmp dx,0
+		jne continuar
+		mov divisor,bx
+        ESPRIMO divisor
+        cmp primo,1
+        je continuar
+		ESCRIBE coma
+		NUMCAD divisor,auxcaddiv
+		INVERSA auxcaddiv
+		ESCRIBE auxcaddiv		
+continuar:	
+        inc bx
+        cmp bx,mitad
+        jle dividir
+		
+		ESCRIBE coma
+		NUMCAD num,auxcaddiv
+		INVERSA auxcaddiv
+		ESCRIBE auxcaddiv
+		jmp finadvertencia
+numprimo:	
+		ESCRIBE esNumeroPrimo
+		ESCRIBE espacioBlanco
+		jmp finadvertencia
+cero:
+		ESCRIBE ceroDivisor
+		jmp finadvertencia
+uno:
+		ESCRIBE unoDivisor
+finadvertencia:		
+		pop dx
+		pop bx
+		pop ax
+endm
+
+
+;////////////////////////////////////////////////////////////
+;SECCION DE UTILIDADES
+;////////////////////////////////////////////////////////////
+
+;Verificar si un numero es primos
+ESPRIMO macro num 
+local repetir, prim,noprim,terminar
+        push ax
+        push bx
+        push dx 
+        mov bx,num
+        dec bx
+repetir:
+        sub ax,ax 
+        sub dx,dx       
+        mov ax,num
+        dec bx
+        cmp bx,1
+        jle prim
+        div bx
+        cmp dx,0
+        je noprim
+        jmp repetir
+prim:    
+;= 1 es primo
+        mov primo,1
+        jmp terminar
+noprim:     
+;= 0 no es primo
+        mov primo,0
+terminar:                 
+        pop dx
+        pop bx
+        pop ax
+endm  
+
+
+;Obtener factores primos
+FACTORES macro num  
+local numprimo,reset,mientras,nodivisor,fin,saltar,nopri,volv,cero    
+        push ax
+        push bx 
+        push dx
+		cmp num,0
+		je cero
+        mov acc,1
+        mov bx,2  
+		mov auxcoma,0		
+		ESCRIBE factoresPrimos
+		NUMCAD num,auxcadprim
+        INVERSA auxcadprim 
+        ESCRIBE auxcadprim
+		ESCRIBE dospuntos
+		cmp numero,1
+		je numprimo
+reset:	
+        sub dl,dl	
+        mov ax,num		
+        cmp bx,num
+        je numprimo	
+mientras: 
+        mov dx,acc
+        cmp num,dx
+        je fin 
+        sub dx,dx       
+        div bx
+        cmp dx,0
+        jne nodivisor 
+        mov aux,bx  
+        ESPRIMO aux
+        cmp primo,1
+        jne nodivisor        
+        cmp auxcoma,0
+		je saltar
+		ESCRIBE coma 
+		mov primo,0		
+ saltar:   
+        mov auxprim,ax
+        mov ax,acc
+        mul bx
+        NUMCAD aux,auxcadprim
+        INVERSA auxcadprim
+        ESCRIBE auxcadprim
+        mov acc,ax
+        inc auxcoma  
+        mov ax,auxprim
+		sub dx,dx
+        jmp mientras         
+nodivisor:
+        inc bx
+        jmp reset    
+numprimo:
+		mov primo,1
+		NUMCAD num,auxcadprim
+		INVERSA auxcadprim
+		ESCRIBE auxcadprim
+		ESCRIBE esNumeroPrimo
+		ESCRIBE espacioBlanco
+		jmp fin
+cero:
+		ESCRIBE ceroPrimo
+fin:     
+		pop dx
+        pop bx
+        pop ax
+endm
+
+
+;Invertir cadena
+INVERSA macro cad 
+local salto,fin     
+   push ax 
+   push di
+   push si   
+   longitud cad,long 
+   mov di,long
+   dec di
+   sub si,si 
+salto:
+   cmp di,si
+   jle fin 
+   mov al,cad[si]    
+   mov ah,cad[di] 
+   mov cad[si],ah 
+   mov cad[di],al
+   inc si
+   dec di
+   jmp salto
+fin:       		
+   pop si
+   pop di
+   pop ax 
+endm 
+
+
+;Calcular longitud de una cadena
+LONGITUD macro cad,var
+local comp,fin,dividir
+    push ax
+    push si
+    sub si,si
+comp:    
+    mov al,cad[si]
+    cmp al,'$'
+    je fin
+    inc si 
+    jmp comp
+fin:
+	mov var,si
+    pop si
+    pop ax     
+endm   
+
+
+
+
+
+
