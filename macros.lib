@@ -1,26 +1,21 @@
-;TODO
-;VER CASO ESPECIAL DEL 1
-;TIRA FACTORES 1 Y DIVISORES 1
-
-
 ;////////////////////////////////////////////////////////////
 ;SECCION DE CONVERSION DE NUMERO A CADENA O VICEVERSA
 ;////////////////////////////////////////////////////////////
 
 ;Convertir cadena a numero
-CADNUM macro cad,num 
+CADNUM macro num 
 local multi,finconv 
         push ax
         push bx
 		push dx
 		push si
 		mov num,0
-		longitud cadena,long
+		LONGITUD cadena,long
 		mov si,long 
 	    dec si			
         sub bx,bx
         mov bx,1 
- multi: 
+multi: 
 		sub ax,ax
 		sub dx,dx
         mov al,cadena[si]    
@@ -87,7 +82,7 @@ endm
 
 ;Leer exclusivamente un numero
 LEENUM macro cad,longi   
-local inicio,ingreso,fingreso,errorIngreso
+local inicio,ingreso,intro,errorIngreso,fingreso
         push ax
 		push bx
         mov ah,01 
@@ -160,44 +155,15 @@ OPCION1 macro cad,num
 		mov habilitar3,0
 		LEENUM cad,4
 		LONGITUD cad,long
-		CADNUM cad,num		
+		CADNUM num		
 		mov habilitar2,1
 endm
 
 
 ;Realizar la opcion 2
 OPCION2 macro num 
-local seguir,fin	
-		push ax
-		push bx
-		push di
-		push dx	
+local seguir,finadvertencia	
 ;verifico que se haya realizado la opcion 1		
-		cmp habilitar2,1
-		je seguir
-		mov sonido,7
-		ESCRIBE sonido
-		ESCRIBE advertirOpc1
-		jmp fin
-seguir:		
-		FACTORES num
-fin:			
-;habilito la opcion3
-		mov habilitar3,1		
-		pop dx
-		pop di
-		pop bx
-		pop ax
-endm
-
-
-;Realizar la opcion 3
-OPCION3 macro num,divisor
-local seguir,finadvertencia,avanzar,cero,uno	
-		push ax
-		push bx
-		push dx
-;Verifico que se haya realizado la opcion 1
 		cmp habilitar2,1
 		je seguir
 		mov sonido,7
@@ -205,20 +171,35 @@ local seguir,finadvertencia,avanzar,cero,uno
 		ESCRIBE advertirOpc1
 		jmp finadvertencia
 seguir:		
+		FACTORES num
+;habilito la opcion3
+		mov habilitar3,1
+finadvertencia:	
+endm
+
+
+;Realizar la opcion 3
+OPCION3 macro num,divisor
+local seguir,cero,uno,finadvertencia	
+		push ax
+		push bx
+		push dx
+
 ;Verifico que se haya realizado la opcion 2
 		cmp habilitar3,1
-		je avanzar
+		je seguir
 		mov sonido,7
 		ESCRIBE sonido
 		ESCRIBE advertirOpc2
 		jmp finadvertencia		
-avanzar:
+seguir:
 ;caso especial 0
 		cmp num,0
 		je cero
 ;caso especial 1		
 		cmp num,1
 		je uno
+;analisis para el resto de numeros		
 		ESCRIBE divisoresDe
 		NUMCAD num,auxcaddiv
 		INVERSA auxcaddiv
@@ -231,10 +212,16 @@ cero:
 		jmp finadvertencia
 uno:
 		ESCRIBE unoDivisor
-finadvertencia:		
+finadvertencia:	
+		ESCRIBE espacioBlanco
 		pop dx
 		pop bx
 		pop ax
+endm
+
+OPCION4 macro
+		ESCRIBE espacioBlanco
+		ESCRIBE finPrograma
 endm
 
 
@@ -291,7 +278,6 @@ continuar:
 		jmp fin
 numprimo:	
 		ESCRIBE esNumeroPrimo
-		ESCRIBE espacioBlanco
 fin:		
 		pop dx
 		pop bx
@@ -300,7 +286,7 @@ endm
 
 ;Verificar si un numero es primos
 ESPRIMO macro num 
-local repetir, prim,noprim,terminar
+local repetir,prim,noprim,terminar
         push ax
         push bx
         push dx 
@@ -333,10 +319,11 @@ endm
 
 ;Obtener factores primos
 FACTORES macro num  
-local numprimo,reset,mientras,nodivisor,fin,saltar,nopri,volv,cero    
+local reset,mientras,saltar,nodivisor,numprimo,cero,fin   
         push ax
         push bx 
         push dx
+		
 		cmp num,0
 		je cero
         mov acc,1
@@ -370,7 +357,7 @@ mientras:
 		je saltar
 		ESCRIBE coma 
 		mov primo,0		
- saltar:   
+saltar:   
         mov auxprim,ax
         mov ax,acc
         mul bx
@@ -391,11 +378,12 @@ numprimo:
 		INVERSA auxcadprim
 		ESCRIBE auxcadprim
 		ESCRIBE esNumeroPrimo
-		ESCRIBE espacioBlanco
 		jmp fin
 cero:
 		ESCRIBE ceroPrimo
 fin:     
+		ESCRIBE espacioBlanco
+		
 		pop dx
         pop bx
         pop ax
@@ -405,50 +393,46 @@ endm
 ;Invertir cadena
 INVERSA macro cad 
 local salto,fin     
-   push ax 
-   push di
-   push si   
-   longitud cad,long 
-   mov di,long
-   dec di
-   sub si,si 
+		push ax 
+	    push di
+	    push si   
+	    LONGITUD cad,long 
+	    mov di,long
+	    dec di
+	    sub si,si 
 salto:
-   cmp di,si
-   jle fin 
-   mov al,cad[si]    
-   mov ah,cad[di] 
-   mov cad[si],ah 
-   mov cad[di],al
-   inc si
-   dec di
-   jmp salto
+	    cmp di,si
+	    jle fin 
+	    mov al,cad[si]    
+	    mov ah,cad[di] 
+	    mov cad[si],ah 
+	    mov cad[di],al
+	    inc si
+	    dec di
+	    jmp salto
 fin:       		
-   pop si
-   pop di
-   pop ax 
+	    pop si
+	    pop di
+	    pop ax 
 endm 
 
 
 ;Calcular longitud de una cadena
 LONGITUD macro cad,var
-local comp,fin,dividir
-    push ax
-    push si
-    sub si,si
+local comp,fin
+		push ax
+		push si
+		
+		sub si,si
 comp:    
-    mov al,cad[si]
-    cmp al,'$'
-    je fin
-    inc si 
-    jmp comp
+		mov al,cad[si]
+		cmp al,'$'
+		je fin
+		inc si 
+		jmp comp
 fin:
-	mov var,si
-    pop si
-    pop ax     
+		mov var,si
+		
+		pop si
+		pop ax     
 endm   
-
-
-
-
-
-

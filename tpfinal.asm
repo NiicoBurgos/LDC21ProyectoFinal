@@ -108,8 +108,7 @@ op3:
 		call esperar
 		jmp menu	
 op4:    
-        ESCRIBE espacioBlanco
-		ESCRIBE finPrograma		      
+        OPCION4		      
         call esperar 
         ret
 inicio endp   
