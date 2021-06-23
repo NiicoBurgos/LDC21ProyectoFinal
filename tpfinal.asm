@@ -19,42 +19,42 @@ datos segment
     menugap db cr,lf,'*                           *','$'             
 
 ;textos del programa        
+    elegirOpcion db cr,lf,'Elija una opcion:','$' 
+    ingresoNumero db cr,lf,'Ingrese un numero de hasta 4 cifras:','$'    
+    
     advertirOpc1 db cr,lf,'Advertencia, debe realizar antes la Opcion 1','$'
-    advertirOpc2 db cr,lf,'Advertencia, debe realizar antes la Opcion 2','$'
-    coma db ', ','$'  
-    divisoresDe db cr,lf,'Divisores de ','$'    
-    dospuntos db ':','$'
-    elegirOpcion db cr,lf,'Elija una opcion:','$'       
+    advertirOpc2 db cr,lf,'Advertencia, debe realizar antes la Opcion 2','$' 
     errorOpcion db cr,lf,'Error! Elija una opcion valida','$' 
+    ingresoErroneo db cr,lf,'Error! Debe ingresar un numero','$'
+          
+    unoDivisor db cr,lf,'El valor 1 no contiene divisores distintos de 1','$'
     ceroDivisor db cr,lf,'El valor 0 no cuenta con divisores','$'
-    ceroPrimo db cr,lf,'El valor 0 no cuenta con factores primos','$'
-    espacioBlanco db cr,lf,'','$' 
-    esNumeroPrimo db cr,lf,'Es un numero primo','$'
+    ceroPrimo db cr,lf,'El valor 0 no cuenta con factores primos','$' 
+    esNumeroPrimo db cr,lf,'Es un numero primo','$' 
+       
+    divisoresDe db cr,lf,'Divisores de ','$'  
     excluirPrimos db ' (excluidos los factores primos):','$'
     factoresPrimos db cr,lf,'Factores primos de ','$'
-    finPrograma db cr,lf,'FIN DE PROGRAMA','$'
-    ingresoErroneo db cr,lf,'Error! Debe ingresar un numero','$'
+    finPrograma db cr,lf,'FIN DE PROGRAMA','$'  
     ingresoExitoso db cr,lf,'Numero ingresado correctamente','$'
-    ingresoNumero db cr,lf,'Ingrese un numero de hasta 4 cifras:','$'  
-    presioneTecla db cr,lf,'Presione una tecla para continuar','$' 
-    unoDivisor db cr,lf,'El valor 1 no contiene divisores distintos de 1','$'
+    presioneTecla db cr,lf,'Presione una tecla para continuar','$'    
+    coma db ', ','$'    
+    dospuntos db ':','$'
+    espacioBlanco db cr,lf,'','$' 
     
 ;cadenas necesarias para el programa       
-    auxcaddiv db 4 dup(''),'$'
-    auxcadprim db 4 dup(''),'$'
+    auxcad db 4 dup(''),'$'
     cadena db 4 dup('0'),'$' 
 
 ;variables del programa    
     auxcoma db 0,'$'     
-    habilitar2 db 0,'$'         
-    habilitar3 db 0,'$'    
+    habilitar db 1,'$'            
     opcion db 0,'$'   
     primo db 0,'$'  
-    sonido db 0,'$'
-    acc dw 0,'$'    
+    sonido db 7,'$'
+    acc dw 1,'$'    
     aux dw 0,'$' 
-    auxdivisor dw 0,'$'
-    auxprim dw 0,'$' 
+    auxax dw 0,'$' 
     long dw 0,'$'
     mitad dw 0,'$'    
     numero dw 0,'$'        
@@ -93,17 +93,17 @@ menu:
 		cmp opcion,4
 		je op4
 op1:
-		OPCION1 cadena,numero
+		OPCION1 
 		ESCRIBE presioneTecla 
 		call esperar
 		jmp menu
 op2:	
-		OPCION2 numero 
+		OPCION2 
 		ESCRIBE presioneTecla 
 		call esperar
 		jmp menu
 op3:
-		OPCION3 numero,auxdivisor
+		OPCION3 
 		ESCRIBE presioneTecla 
 		call esperar
 		jmp menu	

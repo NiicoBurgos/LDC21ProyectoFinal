@@ -71,8 +71,10 @@ endm
 
 ;Escribir texto por pantalla
 ESCRIBE macro palabra
+		push dx
 		lea dx,palabra
 		call escribir
+		pop dx
 endm
 
 
@@ -108,13 +110,13 @@ intro:
 		je inicio
 		jmp fingreso
 errorIngreso:
-		mov sonido,7
 		ESCRIBE sonido
 		ESCRIBE ingresoErroneo
 		jmp inicio
 fingreso:
 		mov cad[si],'$'
-		ESCRIBE ingresoExitoso		
+		ESCRIBE ingresoExitoso	
+		ESCRIBE espacioBlanco
         pop bx
 		pop ax
 endm
@@ -135,7 +137,6 @@ volver:
 		jg errorOpc
 		jmp correcto
 errorOpc:	
-		mov sonido,7
 		ESCRIBE sonido
 		ESCRIBE errorOpcion
 		jmp volver
@@ -151,61 +152,60 @@ endm
 ;////////////////////////////////////////////////////////////
 
 ;Realizar la opcion 1
-OPCION1 macro cad,num	
-		mov habilitar3,0
-		LEENUM cad,4
-		LONGITUD cad,long
-		CADNUM num		
-		mov habilitar2,1
+OPCION1 macro 	
+		mov habilitar,1
+		LEENUM cadena,4
+		LONGITUD cadena,long
+		CADNUM numero		
+		mov habilitar,2
 endm
 
 
 ;Realizar la opcion 2
-OPCION2 macro num 
+OPCION2 macro 
 local seguir,finadvertencia	
 ;verifico que se haya realizado la opcion 1		
-		cmp habilitar2,1
-		je seguir
-		mov sonido,7
+		cmp habilitar,2
+		jge seguir
 		ESCRIBE sonido
 		ESCRIBE advertirOpc1
 		jmp finadvertencia
-seguir:		
-		FACTORES num
+seguir:	
+		FACTORES numero,aux
 ;habilito la opcion3
-		mov habilitar3,1
+		mov habilitar,3
 finadvertencia:	
+		ESCRIBE espacioBlanco
 endm
 
 
 ;Realizar la opcion 3
-OPCION3 macro num,divisor
+OPCION3 macro 
 local seguir,cero,uno,finadvertencia	
 		push ax
 		push bx
 		push dx
 
 ;Verifico que se haya realizado la opcion 2
-		cmp habilitar3,1
+		cmp habilitar,3
 		je seguir
-		mov sonido,7
 		ESCRIBE sonido
 		ESCRIBE advertirOpc2
 		jmp finadvertencia		
 seguir:
 ;caso especial 0
-		cmp num,0
+		cmp numero,0
 		je cero
 ;caso especial 1		
-		cmp num,1
+		cmp numero,1
 		je uno
 ;analisis para el resto de numeros		
 		ESCRIBE divisoresDe
-		NUMCAD num,auxcaddiv
-		INVERSA auxcaddiv
-		ESCRIBE auxcaddiv
+		NUMCAD numero,auxcad
+		INVERSA auxcad
+		ESCRIBE auxcad
 		ESCRIBE excluirPrimos	
-		DIVISORES numero,divisor
+		DIVISORES numero,aux
 		jmp finadvertencia
 cero:
 		ESCRIBE ceroDivisor
@@ -219,6 +219,8 @@ finadvertencia:
 		pop ax
 endm
 
+
+;realizar la opcion 4
 OPCION4 macro
 		ESCRIBE espacioBlanco
 		ESCRIBE finPrograma
@@ -247,13 +249,14 @@ local dividir,continuar,numprimo,fin
 		mov bx,1
 		mov divisor,bx		
 ;se muestra el 1 que es divisor universal de todos los numeros		
-		NUMCAD divisor,auxcaddiv
-		INVERSA auxcaddiv
-		ESCRIBE auxcaddiv
+		NUMCAD divisor,auxcad
+		INVERSA auxcad
+		ESCRIBE auxcad
 ;como ya se evaluó si era primo en la opcion 2 comparo la variable primo para evitar volver a recorrer el numero
 		cmp primo,1
 		je numprimo		
-dividir:sub ax,ax
+dividir:
+		sub ax,ax
 		sub dx,dx
 		mov ax,num		
 		div bx                               
@@ -264,17 +267,17 @@ dividir:sub ax,ax
         cmp primo,1
         je continuar
 		ESCRIBE coma
-		NUMCAD divisor,auxcaddiv
-		INVERSA auxcaddiv
-		ESCRIBE auxcaddiv		
+		NUMCAD divisor,auxcad
+		INVERSA auxcad
+		ESCRIBE auxcad		
 continuar:	
         inc bx
         cmp bx,mitad
         jle dividir		
 		ESCRIBE coma
-		NUMCAD num,auxcaddiv
-		INVERSA auxcaddiv
-		ESCRIBE auxcaddiv
+		NUMCAD num,auxcad
+		INVERSA auxcad
+		ESCRIBE auxcad
 		jmp fin
 numprimo:	
 		ESCRIBE esNumeroPrimo
@@ -318,7 +321,7 @@ endm
 
 
 ;Obtener factores primos
-FACTORES macro num  
+FACTORES macro num,auxprim  
 local reset,mientras,saltar,nodivisor,numprimo,cero,fin   
         push ax
         push bx 
@@ -330,9 +333,9 @@ local reset,mientras,saltar,nodivisor,numprimo,cero,fin
         mov bx,2  
 		mov auxcoma,0		
 		ESCRIBE factoresPrimos
-		NUMCAD num,auxcadprim
-        INVERSA auxcadprim 
-        ESCRIBE auxcadprim
+		NUMCAD num,auxcad
+        INVERSA auxcad
+        ESCRIBE auxcad
 		ESCRIBE dospuntos
 		cmp numero,1
 		je numprimo
@@ -349,7 +352,7 @@ mientras:
         div bx
         cmp dx,0
         jne nodivisor 
-        mov aux,bx  
+        mov auxprim,bx  
         ESPRIMO aux
         cmp primo,1
         jne nodivisor        
@@ -358,15 +361,15 @@ mientras:
 		ESCRIBE coma 
 		mov primo,0		
 saltar:   
-        mov auxprim,ax
+        mov auxax,ax
         mov ax,acc
         mul bx
-        NUMCAD aux,auxcadprim
-        INVERSA auxcadprim
-        ESCRIBE auxcadprim
+        NUMCAD auxprim,auxcad
+        INVERSA auxcad
+        ESCRIBE auxcad
         mov acc,ax
         inc auxcoma  
-        mov ax,auxprim
+        mov ax,auxax
 		sub dx,dx
         jmp mientras         
 nodivisor:
@@ -374,16 +377,14 @@ nodivisor:
         jmp reset    
 numprimo:
 		mov primo,1
-		NUMCAD num,auxcadprim
-		INVERSA auxcadprim
-		ESCRIBE auxcadprim
+		NUMCAD num,auxcad
+		INVERSA auxcad
+		ESCRIBE auxcad
 		ESCRIBE esNumeroPrimo
 		jmp fin
 cero:
 		ESCRIBE ceroPrimo
 fin:     
-		ESCRIBE espacioBlanco
-		
 		pop dx
         pop bx
         pop ax
