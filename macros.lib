@@ -231,18 +231,13 @@ endm
 ;SECCION DE UTILIDADES
 ;////////////////////////////////////////////////////////////
 
-;
+;realiza el calculo de los divisores de un numero
 DIVISORES macro num,divisor
 local dividir,continuar,numprimo,fin
 		push ax
 		push bx
 		push dx
 		
-		sub dx,dx
-		mov ax,num
-		mov bx,2
-		div bx
-		mov mitad,ax
 		sub dx,dx
 		sub ax,ax
 		mov ax,num
@@ -278,6 +273,7 @@ continuar:
 		NUMCAD num,auxcad
 		INVERSA auxcad
 		ESCRIBE auxcad
+		mov primo, 0
 		jmp fin
 numprimo:	
 		ESCRIBE esNumeroPrimo
@@ -331,7 +327,11 @@ local reset,mientras,saltar,nodivisor,numprimo,cero,fin
 		je cero
         mov acc,1
         mov bx,2  
-		mov auxcoma,0		
+		mov auxcoma,0
+		sub dx,dx		
+		mov ax,num
+		div bx
+		mov mitad,ax		
 		ESCRIBE factoresPrimos
 		NUMCAD num,auxcad
         INVERSA auxcad
@@ -342,8 +342,8 @@ local reset,mientras,saltar,nodivisor,numprimo,cero,fin
 reset:	
         sub dl,dl	
         mov ax,num		
-        cmp bx,num
-        je numprimo	
+        cmp bx,mitad
+        jg numprimo	
 mientras: 
         mov dx,acc
         cmp num,dx
