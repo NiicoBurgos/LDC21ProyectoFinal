@@ -7,17 +7,14 @@ CADNUM macro num
 local multi,finconv 
         push ax
         push bx
-		push dx
 		push si
 		mov num,0
 		LONGITUD cadena,long
 		mov si,long 
 	    dec si			
-        sub bx,bx
         mov bx,1 
 multi: 
 		sub ax,ax
-		sub dx,dx
         mov al,cadena[si]    
 		sub al,48		
         mul bx      
@@ -32,7 +29,6 @@ multi:
         jmp multi                  
 finconv:
 		pop si
-		pop dx	
 		pop bx
         pop ax    
 endm
@@ -46,8 +42,6 @@ local dividir
         push si 
 		push dx		
         sub si,si   
-        sub ax,ax
-        sub bx,bx 
         mov ax,num
         mov bx,10            
 dividir:
@@ -238,8 +232,6 @@ local dividir,continuar,numprimo,fin
 		push bx
 		push dx
 		
-		sub dx,dx
-		sub ax,ax
 		mov ax,num
 		mov bx,1
 		mov divisor,bx		
@@ -251,7 +243,6 @@ local dividir,continuar,numprimo,fin
 		cmp primo,1
 		je numprimo		
 dividir:
-		sub ax,ax
 		sub dx,dx
 		mov ax,num		
 		div bx                               
@@ -292,7 +283,6 @@ local repetir,prim,noprim,terminar
         mov bx,num
         dec bx
 repetir:
-        sub ax,ax 
         sub dx,dx       
         mov ax,num
         dec bx
